@@ -1,116 +1,95 @@
-# Title (Tab Audio Controller)
+# Set Zoom across All Tabs
 
-A lightweight Edge/Chrome (Manifest V3) extension to control tab audio like a mixer:
-- **Mute all tabs**
-- **Solo current tab** (mute all except the active tab)
-- **Unmute all tabs**
-
-Perfect for “control-room” browsing—e.g., keeping **multiple live streams** (news/gaming/entertainment) open and instantly switching which one you hear.
+A lightweight Chrome/Edge (Manifest V3) extension that applies a custom zoom level to all open tabs at once — with an option to automatically apply it to new tabs as they open.
 
 ---
 
 ## ✨ Features
 
-- ✅ **Mute all tabs** (one click / one shortcut)
-- ✅ **Solo current tab**: keeps only the **active tab audible**
-- ✅ **Unmute all tabs**
-- ✅ **Keyboard shortcuts** exposed as **Commands** and fully customizable in:
-  - Edge: `edge://extensions/shortcuts`
-  - Chrome: `chrome://extensions/shortcuts`
-- ✅ Minimal permissions: uses only `tabs`
+- **Apply zoom to all tabs** — set a zoom level and apply it across every open tab in one click
+- **Reset all tabs** — return every tab to 100% zoom instantly
+- **Auto-apply to new tabs** — optionally have the chosen zoom level applied automatically whenever a new tab opens
+- **Persistent settings** — your zoom level and preferences are saved across browser sessions
+- Zoom options from **80% to 250%**
 
 ---
 
-## 🎯 Best-fit scenarios (real-world)
+## 🎯 Best-fit scenarios
 
-- **Multiple live streams open (5–15 tabs)** and you switch frequently  
-  Example: 8 news channels + 2 gaming streams + 1 podcast live.
-- **Compare multiple YouTube videos** (tutorials/reviews) without pausing each one
-- **Monitoring dashboards with audio feeds/alerts** and solo the one you’re inspecting
-- **Content review / clip hunting** across multiple sources
-
----
-
-## ⌨️ Default Shortcuts (Customizable)
-
-> Defaults are chosen to avoid conflicts with built-in browser shortcuts.
-
-- **Mute all tabs** → `Ctrl+Shift+7`
-- **Solo current tab** → `Ctrl+Shift+8`
-- **Unmute all tabs** → `Ctrl+Shift+9`
-
-### Why not `Ctrl+7 / Ctrl+8 / Ctrl+9`?
-Browsers typically reserve these for **tab switching** (jump to tab number). If you try to use them, they may not bind or may not trigger reliably.
+- **Accessibility** — set a comfortable reading size once and have it apply everywhere, including new tabs
+- **Presentations and demos** — instantly scale up all tabs for screen sharing or projecting
+- **Small or large monitors** — quickly rebalance zoom when switching between screens
+- **Resetting after browsing** — restore all tabs to 100% in one click after sites have applied their own zoom changes
 
 ---
 
-## 📦 Installation (Edge / Chrome)
+## 📦 Installation
 
-### Step 1 — Download & unzip
-1. Download the ZIP from this repo (or from Releases).
-2. **Unzip** it to a folder (important).  
-   You must load the **folder containing `manifest.json`**.
+### Step 1 — Download the extension files
 
-### Step 2 — Load unpacked extension
+1. Click the green **Code** button on this page and choose **Download ZIP**, or clone the repo.
+2. **Unzip** the downloaded file to a permanent folder on your computer.  
+   You need to keep the folder in place — removing it will uninstall the extension.
 
-#### Microsoft Edge
-1. Open: `edge://extensions`
-2. Turn **Developer mode** ON
+### Step 2 — Load as an unpacked extension
+
+#### Google Chrome
+
+1. Open `chrome://extensions`
+2. Turn **Developer mode** ON (toggle in the top-right)
 3. Click **Load unpacked**
 4. Select the unzipped folder
 
-#### Google Chrome
-1. Open: `chrome://extensions`
-2. Turn **Developer mode** ON
+#### Microsoft Edge
+
+1. Open `edge://extensions`
+2. Turn **Developer mode** ON (toggle in the bottom-left)
 3. Click **Load unpacked**
 4. Select the unzipped folder
 
 ### Step 3 — (Optional) Pin the extension
-- Click the Extensions (puzzle) icon → pin **Title**
+
+Click the Extensions (puzzle-piece) icon in the toolbar and pin **Set Zoom across All Tabs** for easy one-click access.
 
 ---
 
-## 🔧 Customize shortcuts
+## 🔧 Usage
 
-1. Go to:
-   - Edge: `edge://extensions/shortcuts`
-   - Chrome: `chrome://extensions/shortcuts`
-2. Find **Title**
-3. Assign your preferred keys to:
-   - Mute all tabs
-   - Solo current tab
-   - Unmute all tabs
+1. Click the extension icon in the browser toolbar to open the popup.
+2. Select a zoom level from the dropdown (80% – 250%).
+3. Click **Apply to All Tabs** to apply that zoom to every currently open tab.
+4. To return all tabs to normal, click **Reset All** (sets everything back to 100%).
+5. Check **Apply to new tabs** if you want the zoom level automatically applied to any tab you open in the future.
 
-> Tip: If shortcuts don’t auto-apply, remove the extension and install again, then set them manually in the shortcuts page.
+Your zoom level and checkbox preference are saved automatically and persist across browser restarts.
 
 ---
 
-## 🧠 How it works (high level)
+## 🧠 How it works
 
-- Uses the browser `tabs` API to set each tab’s `muted` state:
-  - Mute all: sets `muted = true` for every tab
-  - Solo: sets `muted = false` for the active tab, `true` for all others
-  - Unmute all: sets `muted = false` for every tab
+- **`popup.js`** — handles the UI. On clicking "Apply to All Tabs", it queries all open tabs and calls `chrome.tabs.setZoom()` on each one, then saves the chosen zoom level and checkbox state to `chrome.storage.local`. "Reset All" does the same but always sets zoom to 1.0.
+- **`background.js`** — a service worker that listens for new tabs being created. If "Apply to new tabs" is enabled and a zoom level has been saved, it automatically applies that zoom to the new tab (with a short delay to ensure the tab is ready).
+- Settings are persisted via `chrome.storage.local`, so your preferences survive browser restarts.
 
 ---
 
 ## ⚠️ Notes / Limitations
 
-- Some internal pages (like browser settings pages) may not allow tab updates—those are safely ignored.
-- Keyboard shortcuts are **suggestions**; if a shortcut conflicts with existing browser/system shortcuts, you may need to set it manually via the shortcuts page.
+- **Internal browser pages** (`chrome://`, `edge://`, `about:`, etc.) cannot be zoomed by extensions and will silently skip — this is expected and harmless.
+- Zoom is applied to tabs at the moment you click **Apply**. If **Apply to new tabs** is unchecked, tabs opened afterward will use the browser's default zoom.
+- Some sites that override zoom via CSS transforms rather than browser zoom may not respond as expected.
+
+---
+
+## 🔐 Permissions
+
+| Permission | Why it's needed |
+|---|---|
+| `tabs` | To query all open tabs and set their zoom level |
+| `storage` | To persist your zoom level and settings across sessions |
 
 ---
 
 ## 🙏 Credits
 
-**Conceived by Dr Nitin, created by M365 Copilot**
-
----
-
-## 📄 License
-
-Choose one:
-- MIT (recommended for maximum reuse), or
-- Your organization’s internal license
-
-(Add a `LICENSE` file accordingly.)
+Conceived by Dr Nitin, created by M365 Copilot.
